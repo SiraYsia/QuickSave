@@ -1,6 +1,8 @@
+// src/components/itemModal.tsx
+
 import React from 'react';
 import { X, Image as ImageIcon } from 'lucide-react';
-import { Tag } from '../services/storageService';
+import { Tag } from '../services/interfaces';
 import { TagSelector } from './TagSelector';
 
 export const TITLE_CHAR_LIMIT = 35;
@@ -19,7 +21,7 @@ interface ItemModalProps {
   onNoteChange: (note: string) => void;
   onSave: () => void;
   isEditing: boolean;
-}
+  errorMessage?: string | null;}
 
 const ItemModal: React.FC<ItemModalProps> = ({
   isOpen,
@@ -34,7 +36,8 @@ const ItemModal: React.FC<ItemModalProps> = ({
   onContentChange,
   onNoteChange,
   onSave,
-  isEditing
+  isEditing,
+  errorMessage
 }) => {
   const isImage = content.startsWith('data:image');
   
@@ -90,9 +93,9 @@ const ItemModal: React.FC<ItemModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-lg shadow-xl">
-        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-hidden">
+      <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-lg shadow-xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white">
             {isEditing ? 'Edit Item' : 'Add New Item'}
           </h2>
@@ -104,7 +107,13 @@ const ItemModal: React.FC<ItemModalProps> = ({
           </button>
         </div>
         
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 overflow-y-auto">
+          {errorMessage && (
+            <div className="p-3 mb-4 bg-red-100 dark:bg-red-900/50 border-l-4 border-red-500 text-red-700 dark:text-red-200">
+              {errorMessage}
+            </div>
+          )}
+  
           <div className="space-y-1">
             <input
               type="text"
@@ -129,7 +138,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 <img 
                   src={content} 
                   alt={title || 'Saved content'}
-                  className="w-full object-contain cursor-zoom-in"
+                  className="w-full object-contain cursor-zoom-in max-h-[160px]"
                 />
               </div>
               <textarea
@@ -141,13 +150,13 @@ const ItemModal: React.FC<ItemModalProps> = ({
             </div>
           ) : (
             <div 
-              className="relative h-40 overflow-auto"
+              className="relative"
               onPaste={handlePaste}
             >
               <textarea 
                 value={content}
                 onChange={(e) => onContentChange(e.target.value)}
-                className="w-full h-full p-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full h-40 p-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Type, paste text, or paste an image here..."
               />
               <div className="absolute bottom-2 right-2 text-gray-400 dark:text-gray-500">
@@ -161,22 +170,22 @@ const ItemModal: React.FC<ItemModalProps> = ({
             selectedTags={selectedTags}
             onToggleTag={onTagToggle}
           />
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onSave}
-              disabled={!content.trim() || !title.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isEditing ? 'Update' : 'Save'}
-            </button>
-          </div>
+        </div>
+  
+        <div className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onSave}
+            disabled={!content.trim() || !title.trim()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isEditing ? 'Update' : 'Save'}
+          </button>
         </div>
       </div>
     </div>

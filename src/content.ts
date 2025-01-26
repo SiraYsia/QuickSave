@@ -1,3 +1,5 @@
+// src/Content.ts
+
 const detectListType = (element: Element | null): string | null => {
   if (!element) return null;
   

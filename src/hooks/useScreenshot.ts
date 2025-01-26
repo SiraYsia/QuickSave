@@ -1,6 +1,6 @@
-// In useScreenshot.ts
+// src/hooks/useScreenshot.ts
+
 import { useState } from 'react';
-import { storageService } from '../services/storageService';
 
 export const useScreenshot = (onScreenshot: (imageData: string) => void) => {
   const [isCapturing, setIsCapturing] = useState(false);

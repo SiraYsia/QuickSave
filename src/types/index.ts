@@ -1,4 +1,4 @@
-// types/index.ts
+// src/types/index.ts
 
 export enum ContentType {
   TEXT = 'text',
@@ -34,35 +34,19 @@ export interface Collection {
   description?: string;
   created: number;
   modified: number;
-  parentId?: string; // For nested collections
+  parentId?: string; 
 }
+export type ItemType = 'text' | 'code' | 'screenshot';
 
 export interface SavedItem {
   id: string;
-  type: ContentType;
   content: string;
-  note?: string;
-  sourceUrl: string;
-  timestamp: number;
-  modified: number;
-  collectionId?: string;
+  type: ItemType;
   tagIds: string[];
-  metadata?: {
-    title?: string;
-    selection?: {
-      text: string;
-      html?: string;
-    };
-    code?: {
-      language?: string;
-      lineNumbers?: number[];
-    };
-    screenshot?: {
-      width: number;
-      height: number;
-      format: 'jpeg' | 'png';
-    };
-  };
+  createdAt: number;
+  url?: string;
+  title?: string;
+  note?: string;
 }
 
 export interface SearchOptions {

@@ -55,7 +55,20 @@ module.exports = {
           to: 'popup.html'
         },
         { from: 'src/styles', to: 'styles' },
-        { from: 'manifest.json' }
+        { from: 'manifest.json' },
+        // Copy icons with exact paths
+        { 
+          from: 'public/icons/favicon-16x16.png',
+          to: 'icons/favicon-16x16.png'
+        },
+        {
+          from: 'public/icons/favicon-48x48.png',
+          to: 'icons/favicon-48x48.png'
+        },
+        {
+          from: 'public/icons/favicon-128x128.png',
+          to: 'icons/favicon-128x128.png'
+        }
       ],
     }),
   ],

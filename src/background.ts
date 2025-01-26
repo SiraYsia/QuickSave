@@ -1,3 +1,5 @@
+// src/background.ts
+
 const tabStates = new Map<number, number>();
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {

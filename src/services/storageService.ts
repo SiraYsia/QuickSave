@@ -1,31 +1,5 @@
 // src/services/storageService.ts
-
-export interface SavedItem {
-  id: string;
-  content: string;
-  type: 'text' | 'code' | 'screenshot';
-  tagIds: string[];
-  createdAt: number;
-  url?: string;
-  title?: string;
-  note?: string;
-}
-
-export interface Tag {
-  id: string;
-  name: string;
-  color: {
-    name: string;
-    bg: string;
-    text: string;
-    dot: string;
-  };
-}
-
-export interface StorageData {
-  items: SavedItem[];
-  tags: Tag[];
-}
+import { SavedItem, Tag, StorageData } from './interfaces';
 
 class StorageService {
   private static instance: StorageService;
@@ -50,40 +24,38 @@ class StorageService {
   }
 
   async addItem(item: Omit<SavedItem, 'id' | 'createdAt'>): Promise<SavedItem> {
-    const data = await this.getData();
     const newItem: SavedItem = {
       ...item,
       id: crypto.randomUUID(),
       createdAt: Date.now()
     };
     
-    data.items.unshift(newItem); // Add to beginning of array
+    const data = await this.getData();
+    data.items.unshift(newItem);
     await this.setData(data);
     return newItem;
   }
 
-  // Add this method to the StorageService class in storageService.ts
+  async updateItem(id: string, updates: Partial<Omit<SavedItem, 'id' | 'createdAt'>>): Promise<SavedItem> {
+    const data = await this.getData();
+    const existingItem = data.items.find(item => item.id === id);
+    
+    if (!existingItem) {
+      throw new Error(`Item not found: ${id}`);
+    }
 
-async updateItem(id: string, updates: Partial<Omit<SavedItem, 'id' | 'createdAt'>>): Promise<SavedItem> {
-  const data = await this.getData();
-  const existingItem = data.items.find(item => item.id === id);
-  
-  if (!existingItem) {
-    throw new Error(`Item not found: ${id}`);
+    const updatedItem = {
+      ...existingItem,
+      ...updates,
+    };
+
+    data.items = data.items.map(item => 
+      item.id === id ? updatedItem : item
+    );
+
+    await this.setData(data);
+    return updatedItem;
   }
-
-  const updatedItem = {
-    ...existingItem,
-    ...updates,
-  };
-
-  data.items = data.items.map(item => 
-    item.id === id ? updatedItem : item
-  );
-
-  await this.setData(data);
-  return updatedItem;
-}
 
   async addTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
     const data = await this.getData();
@@ -97,27 +69,6 @@ async updateItem(id: string, updates: Partial<Omit<SavedItem, 'id' | 'createdAt'
     return newTag;
   }
 
-  async searchItems(query: string, tagIds?: string[]): Promise<SavedItem[]> {
-    const data = await this.getData();
-    let filteredItems = data.items;
-
-    if (query) {
-      const searchTerm = query.toLowerCase();
-      filteredItems = filteredItems.filter(item =>
-        item.content.toLowerCase().includes(searchTerm) ||
-        item.title?.toLowerCase().includes(searchTerm) ||
-        item.note?.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    if (tagIds && tagIds.length > 0) {
-      filteredItems = filteredItems.filter(item =>
-        tagIds.some(tagId => item.tagIds.includes(tagId))
-      );
-    }
-
-    return filteredItems;
-  }
   async deleteItem(id: string): Promise<void> {
     const data = await this.getData();
     data.items = data.items.filter(item => item.id !== id);
@@ -156,22 +107,25 @@ async updateItem(id: string, updates: Partial<Omit<SavedItem, 'id' | 'createdAt'
     await this.setData(data);
     return updatedTag;
   }
+
   private async getData(): Promise<StorageData> {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(['quicksaveData'], (result) => {
-        const defaultData: StorageData = { items: [], tags: [] };
-        resolve(result.quicksaveData || defaultData);
-      });
-    });
+    try {
+      const result = await chrome.storage.local.get(['quicksaveData']);
+      return result.quicksaveData || { items: [], tags: [] };
+    } catch (error) {
+      console.error('Error reading from storage:', error);
+      throw error;
+    }
   }
 
   private async setData(data: StorageData): Promise<void> {
-    return new Promise((resolve) => {
-      chrome.storage.local.set({ quicksaveData: data }, () => resolve());
-    });
+    try {
+      await chrome.storage.local.set({ quicksaveData: data });
+    } catch (error) {
+      console.error('Error writing to storage:', error);
+      throw error;
+    }
   }
 }
-
-
 
 export const storageService = StorageService.getInstance();

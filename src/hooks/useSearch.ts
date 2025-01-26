@@ -1,6 +1,8 @@
 // src/hooks/useSearch.ts
+
 import { useState, useEffect } from 'react';
-import { SavedItem, Tag } from '../services/storageService';
+import { SavedItem, Tag } from '../services/interfaces';
+
 
 export const useSearch = (items: SavedItem[], tags: Tag[]) => {
   const [searchQuery, setSearchQuery] = useState('');

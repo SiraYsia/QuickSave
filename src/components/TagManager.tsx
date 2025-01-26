@@ -1,6 +1,9 @@
+// src/components/tagManager.tsx
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Tag as TagIcon, X, Edit2, Plus } from 'lucide-react';
-import { Tag } from '../services/storageService';
+import { Tag, TagManagerProps } from '../services/interfaces';
+
 
 const MAX_TAGS = 6;
 const TAG_NAME_LIMIT = 18;
@@ -13,13 +16,6 @@ const TAG_COLORS = [
   { name: 'yellow', bg: 'bg-yellow-600', text: 'text-white', dot: 'bg-yellow-300' },
   { name: 'indigo', bg: 'bg-indigo-600', text: 'text-white', dot: 'bg-indigo-300' }
 ];
-
-interface TagManagerProps {
-  tags: Tag[];
-  onAddTag: (name: string, color: any) => void;
-  onDeleteTag: (tag: Tag) => void;
-  onEditTag: (tag: Tag, newName: string) => void;
-}
 
 export const TagManager: React.FC<TagManagerProps> = ({
   tags,
@@ -72,47 +68,49 @@ export const TagManager: React.FC<TagManagerProps> = ({
       setError('Maximum number of tags reached (6)');
       return;
     }
-
-    const normalizedName = newTagName.trim().toLowerCase();
-    if (!normalizedName) {
+  
+    // Only trim leading/trailing spaces but preserve case
+    const name = newTagName.trim();
+    if (!name) {
       setError('Tag name cannot be empty');
       return;
     }
-    if (tags.some(tag => tag.name.toLowerCase() === normalizedName)) {
+    // Case-insensitive comparison for duplicates
+    if (tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) {
       setError('Tag already exists');
       return;
     }
-    onAddTag(normalizedName, selectedColor);
+    onAddTag(name, selectedColor);
     setNewTagName('');
     setError('');
     setIsCreating(false);
   };
-
   const handleEditTag = () => {
     if (!editingTag) return;
-
-    const normalizedName = newTagName.trim().toLowerCase();
-    if (!normalizedName) {
+  
+    const name = newTagName.trim();
+    if (!name) {
       setError('Tag name cannot be empty');
       return;
     }
-    if (tags.some(tag => tag.id !== editingTag.id && tag.name.toLowerCase() === normalizedName)) {
+    if (tags.some(tag => tag.id !== editingTag.id && tag.name.toLowerCase() === name.toLowerCase())) {
       setError('Tag name already exists');
       return;
     }
-
-    onEditTag(editingTag, normalizedName);
+  
+    onEditTag(editingTag, name);
     setNewTagName('');
     setError('');
     setEditingTag(null);
   };
-
+  
   const handleTagNameChange = (value: string) => {
-    const sanitizedValue = value.replace(/\s/g, '').slice(0, TAG_NAME_LIMIT);
-    setNewTagName(sanitizedValue);
+    // Allow multiple words, trim multiple spaces, and limit total length
+    const trimmedValue = value.replace(/\s+/g, ' ').slice(0, TAG_NAME_LIMIT);
+    setNewTagName(trimmedValue);
     setError('');
   };
-
+  
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -213,7 +211,7 @@ export const TagManager: React.FC<TagManagerProps> = ({
                     type="text"
                     value={newTagName}
                     onChange={(e) => handleTagNameChange(e.target.value)}
-                    placeholder="Tag name (no spaces)"
+                    placeholder="Tag name"
                     className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400"
                     autoFocus
                   />

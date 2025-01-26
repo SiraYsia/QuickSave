@@ -1,6 +1,8 @@
+// src/components/itemList.tsx
+
 import React, { useState } from 'react';
 import { Edit2, X, ChevronDown, ChevronRight } from 'lucide-react';
-import { SavedItem, Tag } from '../services/storageService';
+import { SavedItem, Tag } from '../services/interfaces';
 
 interface ItemListProps {
   items: SavedItem[];
