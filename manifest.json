@@ -6,8 +6,7 @@
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -24,10 +23,14 @@
       "128": "icons/favicon-128x128.png"
     }
   },
+
+  
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
+
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -40,6 +43,9 @@
     "48": "icons/favicon-48x48.png",
     "128": "icons/favicon-128x128.png"
   },
+  "short_name": "QuickSave",
+  "offline_enabled": true,
+
   "web_accessible_resources": [{
     "resources": ["icons/*"],
     "matches": ["<all_urls>"]

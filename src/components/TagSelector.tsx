@@ -18,7 +18,6 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get unselected tags
-  const availableTags = tags.filter((tag) => !selectedTags.includes(tag));
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
